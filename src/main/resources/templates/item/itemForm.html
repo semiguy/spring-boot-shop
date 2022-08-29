@@ -101,6 +101,7 @@
         </div>
         <p th:if="${#fields.hasErrors('itemDetail')}" th:errors="*{itemDetail}" class="fieldError">Incorrect data</p>
 
+        <!-- 상품 이미지 정보를 담고 있는 리스트가 비어 있다면 상품을 등록하는 경우 -->
         <div th:if="${#lists.isEmpty(itemFormDto.itemImgDtoList)}">
             <div class="form-group" th:each="num: ${#numbers.sequence(1,5)}">
                 <div class="custom-file img-div">
@@ -110,6 +111,8 @@
             </div>
         </div>
 
+        <!-- 상품 이미지 정보를 담고 있는 리스트가 비어 있지 않다면 상품을 수정하는 경우 -->
+        <!-- https://ifuwanna.tistory.com/200 -->
         <div th:if = "${not #lists.isEmpty(itemFormDto.itemImgDtoList)}">
             <div class="form-group" th:each="itemImgDto, status: ${itemFormDto.itemImgDtoList}">
                 <div class="custom-file img-div">
