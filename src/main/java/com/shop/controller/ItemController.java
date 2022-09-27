@@ -1,8 +1,13 @@
 package com.shop.controller;
 
 import com.shop.dto.ItemFormDto;
+import com.shop.dto.ItemSearchDto;
+import com.shop.entity.Item;
 import com.shop.service.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,7 +32,7 @@ public class ItemController {
     public String itemForm(Model model) {
 
         model.addAttribute("itemFormDto", new ItemFormDto());
-        return "/item/itemForm";
+        return "item/itemForm";
     }
 
     @PostMapping(value = "/admin/item/new")
@@ -99,5 +105,27 @@ public class ItemController {
         }
 
         return "redirect:/";
+    }
+
+    // 상품 관리 화면 이동 및 조회한 상품 데이터를 화면에 전달
+    @GetMapping(value = {"/admin/items", "/admin/items/{page}"})
+    public String itemManage(ItemSearchDto itemSearchDto, @PathVariable("page") Optional<Integer> page, Model model) {
+
+        // 페이징을 위해서 PageRequest.of 메소드를 통해 Pageable 객체를 생성합니다.
+        // 첫 번째 파라미터로 조회랄 페이지번호, 두 번째 파라미터로 한번에 가지고 올 데이터 수를 넣어줍니다.
+        // URL 경로에 페이지 번호가 있으면 해당 페이지를 조회하도록 세팅하고, 페이지 번호가 없으면 0페이지를 조회하도록 합니다.
+        Pageable pageable = PageRequest.of(page.isPresent() ? page.get() : 0, 3);
+
+        // 조회 조건과 페이징 정보를 파라미터로 넘겨서 Page<Item> 객체를 반환 받습니다.
+        Page<Item> items = itemService.getAdminItemPage(itemSearchDto, pageable);
+
+        // 조회한 상품 데이터 및 페이징 정보를 뷰에 전달합니다.
+        model.addAttribute("items", items);
+        // 페이지 전환 시 기존 검색 조건을 유지한 채 이동할 수 있도록 뷰에 다시 전달합니다.
+        model.addAttribute("itemSearchDto", itemSearchDto);
+        // 상품 관리 메뉴 하단에 보여줄 페이지 번호의 최대 개수입니다.
+        model.addAttribute("maxPage", 5);
+
+        return "item/itemMng";
     }
 }
