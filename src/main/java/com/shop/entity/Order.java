@@ -46,4 +46,40 @@ public class Order extends BaseEntity {
 
     //private LocalDateTime regTime;
     //private LocalDateTime updateTime;
+
+    // 생성한 주문 상품 객체를 이용하여 주문 객체를 만드는 메소드
+    // orderItems에는 주문 상품 정보들을 담아줍니다. orderItem 객체를 order 객체의 orderItems에 추가
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        // Order 엔티티와 OrderItem 엔티티가 양방향 참조 관계 이므로, orderItem 객체에도 order 객체를 세팅
+        orderItem.setOrder(this);
+    }
+
+    public static Order createOrder(Member member, List<OrderItem> orderItemList) {
+
+        Order order = new Order();
+        order.setMember(member); // 상품을 주문한 회원의 정보를 세팅
+        // 상품 페이지에서는 1개의 상품을 주문하지만,
+        // 장바구니 페이지에서는 한번에 여러 개의 상품을 주문할 수 있습니다.
+        // 따라서 여러 개의 주문 상품을 담을 수 있도록 리스트형태로 따라서 여러 개의 주문 상품을 담을 수 있도록
+        // 리스트 형태로 파라미터 값을 받으며 주문 객체에서 orderItem 객체를 추가 합니다.
+        for(OrderItem orderItem : orderItemList) {
+            order.addOrderItem(orderItem);
+        }
+        order.setOrderStatus(OrderStatus.ORDER); // 주문 상태를 ORDER로 세팅
+        order.setOrderDate(LocalDateTime.now()); // 현재 시간을 주문 시간으로 세팅
+
+        return order;
+    }
+
+    // 총 주문 금액을 구하는 메소드
+    public int getTotalPrice() {
+
+        int totalPrice = 0;
+        for(OrderItem orderItem : orderItems) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+
+        return totalPrice;
+    }
 }
