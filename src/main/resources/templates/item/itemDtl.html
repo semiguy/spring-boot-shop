@@ -28,38 +28,46 @@
         }
 
         function order(){
+            // 스프링 시큐리티를 사용할 경우 기본적으로 POST 방식의 데이터 전송에는
+            // CSRF 토큰 값이 필요하므로 해당 값들을 조회.
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
 
+            // 주문할 상품의 아이디와 주문 수량 데이터를 전달할 객체를 생성
             var url = "/order";
             var paramData = {
                 itemId : $("#itemId").val(),
                 count : $("#count").val()
             };
 
+            // 서버에 보낼 주문 데이터를 보낼 형식을 json으로 변경
             var param = JSON.stringify(paramData);
 
             $.ajax({
                 url      : url,
                 type     : "POST",
-                contentType : "application/json",
+                contentType : "application/json", // 서버에 데이터를 보낼 형식을 json으로 지정
                 data     : param,
                 beforeSend : function(xhr){
                     /* 데이터를 전송하기 전에 헤더에 csrf값을 설정 */
                     xhr.setRequestHeader(header, token);
                 },
-                dataType : "json",
+                dataType : "json", // 서버에서 결과값으로 받을 데이터 타입을 json으로 설정
                 cache   : false,
                 success  : function(result, status){
+                    // 주문 로직 호출이 성공하면 "주문이 완료되었습니다."라는 메시지를 보여주고
+                    // 메인으로 이동
                     alert("주문이 완료 되었습니다.");
                     location.href='/';
                 },
                 error : function(jqXHR, status, error){
-
+                    // 현재 로그인 상태가 아니라면 "로그인 후 이용해 주세요"라는 메시지를 보여주고
+                    // 로그인 페이지로 이동
                     if(jqXHR.status == '401'){
                         alert('로그인 후 이용해주세요');
                         location.href='/members/login';
                     } else{
+                        // 주문 시 에러가 발생하면 해당 메시지를 보여줌.
                         alert(jqXHR.responseText);
                     }
 
