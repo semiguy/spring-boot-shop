@@ -15,7 +15,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "cart")
 public class Cart extends BaseEntity {
-
+    
     @Id
     @Column(name = "cart_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,4 +31,13 @@ public class Cart extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+    
+    // Cart 클래스에 회원 엔티티 파라미터로 받아서 장바구니 엔티티를 생성하는 로직
+    public static Cart createCart(Member member) {
+        
+        Cart cart = new Cart();
+        cart.setMember(member);
+        
+        return cart;
+    }
 }
