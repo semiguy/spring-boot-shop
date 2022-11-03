@@ -13,14 +13,17 @@
 
     <script th:inline="javascript">
 
+        // 주문 상품을 체크하거나 해제할 경우 총 주문 금액을 구하는 함수를 호출
         $(document).ready(function(){
             $("input[name=cartChkBox]").change( function(){
                 getOrderTotalPrice();
             });
         });
 
+        // 총 주문 금액을 구하는 함수
         function getOrderTotalPrice(){
             var orderTotalPrice = 0;
+            // 현재 체크된 장바구니 상품들의 가격과 수량을 곱해서 총 주문 금액을 계산
             $("input[name=cartChkBox]:checked").each(function() {
                 var cartItemId = $(this).val();
                 var price = $("#price_" + cartItemId).attr("data-price");
@@ -31,6 +34,8 @@
             $("#orderTotalPrice").html(orderTotalPrice+'원');
         }
 
+        // 장바구니에 들어있는 상품의 수량을 변경 시 상품의 가격과 상품의 수량을 곱해서 상품 금액을 변경
+        // 변경된 총 주문 금액을 계산하기 위해 마지막에 getOrderTotalPrice()함수를 호출
         function changeCount(obj){
             var count = obj.value;
             var cartItemId = obj.id.split('_')[1];
@@ -41,6 +46,8 @@
             updateCartItemCount(cartItemId, count);
         }
 
+        // 장바구니에 들어있는 전체 상품을 체크하거나 체크 해제하는 함수.
+        // 변경된 총 주문 금액을 계산하기 위해서 마지막에 getOrderTotalPrice()함수를 호출
         function checkAll(){
             if($("#checkall").prop("checked")){
                 $("input[name=cartChkBox]").prop("checked",true);
@@ -56,6 +63,7 @@
 
             var url = "/cartItem/" + cartItemId+"?count=" + count;
 
+            // 부분 업데이트이므로 PATCH TYPE으로 설정
             $.ajax({
                 url      : url,
                 type     : "PATCH",
@@ -90,7 +98,7 @@
 
             $.ajax({
                 url      : url,
-                type     : "DELETE",
+                type     : "DELETE", // 장바구니 상품을 삭제하는 경우 DELETE TYPE를 사용
                 beforeSend : function(xhr){
                     /* 데이터를 전송하기 전에 헤더에 csrf값을 설정 */
                     xhr.setRequestHeader(header, token);
@@ -98,7 +106,7 @@
                 dataType : "json",
                 cache   : false,
                 success  : function(result, status){
-                    location.href='/cart';
+                    location.href='/cart'; // 삭제 요청이 정상적으로 처리되면 장바구니 페이지를 새로고침
                 },
                 error : function(jqXHR, status, error){
 
